@@ -1,5 +1,19 @@
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config.js';
+
 export default function TopNavBar() {
 
+
+    
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    window.location.href = '/';
+  } catch (err) {
+    console.error('Logout error:', err);
+  }
+};
 
     return (
         <>
@@ -14,7 +28,7 @@ export default function TopNavBar() {
           <ul className="navbar-nav ms-auto mb-1 me-2 mb-lg-0">
             <li className="nav-item">
               <a className="nav-link" href="#"  style={{cursor: 'pointer'}}>
-                 <p className="fs-3">Log Out</p>
+                 <button onClick={handleLogout}> Sign Out </button>
               </a>
             </li>
           </ul>
