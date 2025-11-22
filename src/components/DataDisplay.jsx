@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import FavoriteButton from './FavoriteButton';
 
 export default function DataDisplay({ searchQuery = '' }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [favorites, setFavorites] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,6 +26,19 @@ export default function DataDisplay({ searchQuery = '' }) {
         };
 
         fetchData();
+    }, []);
+
+    // Load favorites from localStorage
+    useEffect(() => {
+        const savedFavorites = localStorage.getItem('favoriteProfessors');
+        if (savedFavorites) {
+            try {
+                setFavorites(JSON.parse(savedFavorites));
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                setFavorites([]);
+            }
+        }
     }, []);
 
     // Filter data based on search query
@@ -49,6 +64,28 @@ export default function DataDisplay({ searchQuery = '' }) {
             })
         })).filter(dept => dept.professors && dept.professors.length > 0)
     })).filter(school => school.departments && school.departments.length > 0);
+
+    // Check if professor is favorited
+    const isFavorited = (professorId) => {
+        return favorites.some(fav => fav.id === professorId);
+    };
+
+    // Toggle favorite status
+    const handleToggleFavorite = async (professor) => {
+        const isFav = isFavorited(professor.id);
+
+        if (isFav) {
+            // Remove from favorites
+            const updatedFavorites = favorites.filter(fav => fav.id !== professor.id);
+            setFavorites(updatedFavorites);
+            localStorage.setItem('favoriteProfessors', JSON.stringify(updatedFavorites));
+        } else {
+            // Add to favorites
+            const updatedFavorites = [...favorites, professor];
+            setFavorites(updatedFavorites);
+            localStorage.setItem('favoriteProfessors', JSON.stringify(updatedFavorites));
+        }
+    };
 
     if (loading) return <div className="text-center p-4">Loading professor data...</div>;
     if (error) return <div className="alert alert-danger m-3">Error: {error}</div>;
@@ -79,67 +116,90 @@ export default function DataDisplay({ searchQuery = '' }) {
                                 <i className="bi bi-building"></i> {school.school_name}
                             </h5>
 
-                            {school.departments?.map((dept, deptIdx) => (
-                                <div key={deptIdx} className="ms-3 mb-4">
-                                    <h6 className="text-secondary mb-3">
-                                        <i className="bi bi-folder"></i> {dept.department_name}
-                                    </h6>
+                            {school.departments?.map((dept, deptIdx) => {
+                                return (
+                                    <div key={deptIdx} className="ms-3 mb-4">
+                                        <h6 className="text-secondary mb-3">
+                                            <i className="bi bi-folder"></i> {dept.department_name}
+                                        </h6>
 
-                                    {dept.professors?.map((prof, profIdx) => (
-                                        <div key={profIdx} className="card mb-3 shadow-sm">
-                                            <div className="card-body">
-                                                <h5 className="card-title">
-                                                    <i className="bi bi-person-circle"></i> {prof.name}
-                                                </h5>
+                                        {dept.professors?.map((prof, profIdx) => {
+                                            // Create professor object with unique ID for favoriting
+                                            const professorObj = {
+                                                id: `${school.school_name}-${dept.department_name}-${prof.name}`.replace(/\s+/g, '-'),
+                                                name: prof.name,
+                                                email: prof.email,
+                                                department: dept.department_name,
+                                                school: school.school_name,
+                                                linkedin: prof.linkedin,
+                                                google_scholar: prof.google_scholar,
+                                                recent_work: prof.recent_work
+                                            };
 
-                                                <div className="mb-3">
-                                                    {prof.email && (
-                                                        <a href={`mailto:${prof.email}`} className="btn btn-sm btn-outline-primary me-2 mb-2">
-                                                            <i className="bi bi-envelope"></i> Email
-                                                        </a>
-                                                    )}
-                                                    {prof.linkedin && (
-                                                        <a href={prof.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary me-2 mb-2">
-                                                            <i className="bi bi-linkedin"></i> LinkedIn
-                                                        </a>
-                                                    )}
-                                                    {prof.google_scholar && (
-                                                        <a href={prof.google_scholar} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary me-2 mb-2">
-                                                            <i className="bi bi-mortarboard"></i> Google Scholar
-                                                        </a>
-                                                    )}
-                                                </div>
+                                            return (
+                                                <div key={profIdx} className="card mb-3 shadow-sm">
+                                                    <div className="card-body">
+                                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                                            <h5 className="card-title mb-0">
+                                                                <i className="bi bi-person-circle"></i> {prof.name}
+                                                            </h5>
+                                                            <FavoriteButton
+                                                                professor={professorObj}
+                                                                onToggleFavorite={handleToggleFavorite}
+                                                                isFavorited={isFavorited(professorObj.id)}
+                                                            />
+                                                        </div>
 
-                                                {prof.recent_work && prof.recent_work.length > 0 && (
-                                                    <div>
-                                                        <h6 className="text-muted mb-2">
-                                                            <i className="bi bi-file-text"></i> Recent Research:
-                                                        </h6>
-                                                        {prof.recent_work.map((work, workIdx) => (
-                                                            <div key={workIdx} className="mb-3 p-3 bg-light rounded border">
-                                                                <div className="mb-2">
-                                                                    {work.paper_link ? (
-                                                                        <a href={work.paper_link} target="_blank" rel="noopener noreferrer" className="fw-bold text-decoration-none">
-                                                                            {work.paper_title_year || 'Research Paper'}
-                                                                        </a>
-                                                                    ) : (
-                                                                        <strong>{work.paper_title_year || 'Research Paper'}</strong>
-                                                                    )}
-                                                                </div>
-                                                                {work.summary && (
-                                                                    <p className="mb-0 text-muted small">
-                                                                        {work.summary}
-                                                                    </p>
-                                                                )}
+                                                        <div className="mb-3">
+                                                            {prof.email && (
+                                                                <a href={`mailto:${prof.email}`} className="btn btn-sm btn-outline-primary me-2 mb-2">
+                                                                    <i className="bi bi-envelope"></i> Email
+                                                                </a>
+                                                            )}
+                                                            {prof.linkedin && (
+                                                                <a href={prof.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary me-2 mb-2">
+                                                                    <i className="bi bi-linkedin"></i> LinkedIn
+                                                                </a>
+                                                            )}
+                                                            {prof.google_scholar && (
+                                                                <a href={prof.google_scholar} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary me-2 mb-2">
+                                                                    <i className="bi bi-mortarboard"></i> Google Scholar
+                                                                </a>
+                                                            )}
+                                                        </div>
+
+                                                        {prof.recent_work && prof.recent_work.length > 0 && (
+                                                            <div>
+                                                                <h6 className="text-muted mb-2">
+                                                                    <i className="bi bi-file-text"></i> Recent Research:
+                                                                </h6>
+                                                                {prof.recent_work.map((work, workIdx) => (
+                                                                    <div key={workIdx} className="mb-3 p-3 bg-light rounded border">
+                                                                        <div className="mb-2">
+                                                                            {work.paper_link ? (
+                                                                                <a href={work.paper_link} target="_blank" rel="noopener noreferrer" className="fw-bold text-decoration-none">
+                                                                                    {work.paper_title_year || 'Research Paper'}
+                                                                                </a>
+                                                                            ) : (
+                                                                                <strong>{work.paper_title_year || 'Research Paper'}</strong>
+                                                                            )}
+                                                                        </div>
+                                                                        {work.summary && (
+                                                                            <p className="mb-0 text-muted small">
+                                                                                {work.summary}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                        ))}
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ))}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })}
                         </div>
                     ))}
                 </>

@@ -4,18 +4,19 @@ import HomePage from "./pages/HomePage.jsx";
 import AIDashboard from "./pages/AIDashboard.jsx";
 import InterviewPage from "./pages/InterviewPage.jsx";
 import LogInPage from "./pages/LogInPage.jsx";
+import FavoritesPage from "./pages/FavoritesPage.jsx";
 
 export default function App() {
   return (
     <Router>
-      <Routes>n/
-        <Route path="/" element= {<SignUpPage/>} />
-        <Route path="/LogIn" element={<LogInPage/>} />
+      <Routes>
+        <Route path="/" element={<SignUpPage />} />
+        <Route path="/LogIn" element={<LogInPage />} />
         <Route path="/homeUi" element={<HomePage />} />
         <Route path="/ai-assistant" element={<AIDashboard />} />
         <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
       </Routes>
     </Router>
   );
 }
-

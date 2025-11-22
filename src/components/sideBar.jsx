@@ -47,6 +47,14 @@ export default function SideBar() {
         </button>
 
         <button
+          className={`btn text-white p-3 mb-2 mt-2 ${activeIcon === 'favorites' ? 'bg-secondary' : ''}`}
+          onClick={() => handleIconClick('favorites', '/favorites')}
+          title="Favorite Professors"
+        >
+          <i className="fa-solid fa-star fs-3"></i>
+        </button>
+
+        <button
           className={`btn text-white p-3 mb-2 mt-2 ${activeIcon === 'dashboard' ? 'bg-secondary' : ''}`}
           onClick={() => handleIconClick('dashboard')}
           title="ai"
