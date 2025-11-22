@@ -11,7 +11,7 @@ export default function DataDisplay({ searchQuery = '' }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://uvddanzqgxbmjzwgstau.supabase.co/storage/v1/object/public/new_datatest/professors_hierarchical.json');
+                const response = await fetch('https://uvddanzqgxbmjzwgstau.supabase.co/storage/v1/object/public/new_datatest/professors_hierarchical_v2.json');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
