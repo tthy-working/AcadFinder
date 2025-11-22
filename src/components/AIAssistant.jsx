@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { queryGemini } from '../services/gemini';
+ import './AIAssistant.css'; // Add this import
 
 export default function AIAssistant() {
     const [query, setQuery] = useState('');
@@ -48,104 +49,139 @@ export default function AIAssistant() {
     ];
 
     return (
-        <div className="card shadow-sm">
-            <div className="card-header bg-primary text-white">
-                <h5 className="mb-0">
-                    <i className="bi bi-robot"></i> AI Assistant
-                </h5>
-            </div>
-            <div className="card-body">
-                {chatHistory.length > 0 && (
-                    <div className="mb-3" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                        {chatHistory.map((message, index) => (
-                            <div
-                                key={index}
-                                className={`mb-3 p-3 rounded ${message.role === 'user'
-                                    ? 'bg-light text-end'
-                                    : 'bg-primary bg-opacity-10'
-                                    }`}
-                            >
-                                <strong className="d-block mb-1">
-                                    {message.role === 'user' ? '👤 You' : '🤖 AI Assistant'}
-                                </strong>
-                                <div style={{ whiteSpace: 'pre-wrap' }}>
-                                    {message.content}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+       
 
-                {error && (
-                    <div className="alert alert-danger" role="alert">
-                        <i className="bi bi-exclamation-triangle"></i> {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label htmlFor="aiQuery" className="form-label">
-                            Ask me anything:
-                        </label>
-                        <textarea
-                            id="aiQuery"
-                            className="form-control"
-                            rows="3"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="e.g., What is Research Assistant?"
-                            disabled={loading}
-                        />
-                    </div>
-
-                    <div className="d-flex gap-2 mb-3">
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={loading || !query.trim()}
-                        >
-                            {loading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    Thinking...
-                                </>
+<div className="ai-card">
+    <div className="ai-card-glow"></div>
+    
+    <div className="ai-card-header">
+        <div className="ai-icon-wrapper">
+            <i className="fa-solid fa-robot ai-icon"></i>
+        </div>
+        <h5 className="ai-card-title">AI Research Assistant</h5>
+        <p className="ai-card-subtitle">Ask me anything about research</p>
+    </div>
+    
+    <div className="ai-card-body">
+        {chatHistory.length > 0 && (
+            <div className="chat-container">
+                {chatHistory.map((message, index) => (
+                    <div
+                        key={index}
+                        className={`chat-message ${message.role === 'user' ? 'user-message' : 'ai-message'} fade-in-message`}
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                        <div className="message-avatar">
+                            {message.role === 'user' ? (
+                                <i className="fa-solid fa-user"></i>
                             ) : (
-                                <>
-                                    <i className="bi bi-send"></i> Ask AI
-                                </>
+                                <i className="fa-solid fa-robot"></i>
                             )}
-                        </button>
-                        {chatHistory.length > 0 && (
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary"
-                                onClick={clearChat}
-                                disabled={loading}
-                            >
-                                <i className="bi bi-trash"></i> Clear Chat
-                            </button>
-                        )}
-                    </div>
-                </form>
-
-                {chatHistory.length === 0 && (
-                    <div>
-                        <p className="text-muted small mb-2">Try these examples:</p>
-                        <div className="d-flex flex-wrap gap-2">
-                            {exampleQueries.map((example, index) => (
-                                <button
-                                    key={index}
-                                    className="btn btn-sm btn-outline-primary"
-                                    onClick={() => setQuery(example)}
-                                    disabled={loading}
-                                >
-                                    {example}
-                                </button>
-                            ))}
+                        </div>
+                        <div className="message-content">
+                            <strong className="message-sender">
+                                {message.role === 'user' ? 'You' : 'AI Assistant'}
+                            </strong>
+                            <div className="message-text">
+                                {message.content}
+                            </div>
                         </div>
                     </div>
+                ))}
+            </div>
+        )}
+
+        {error && (
+            <div className="alert-custom alert-error slide-down">
+                <i className="fa-solid fa-circle-exclamation me-2"></i>
+                {error}
+            </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+            <div className="input-group-custom">
+                <label htmlFor="aiQuery" className="input-label">
+                    <i className="fa-solid fa-message-dots me-2"></i>
+                    Ask me anything:
+                </label>
+                <div className="textarea-wrapper">
+                    <textarea
+                        id="aiQuery"
+                        className="custom-textarea"
+                        rows="3"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="e.g., What is Research Assistant?"
+                        disabled={loading}
+                    />
+                    {query && (
+                        <button
+                            type="button"
+                            className="clear-textarea-btn"
+                            onClick={() => setQuery('')}
+                            disabled={loading}
+                        >
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <div className="button-group">
+                <button
+                    type="submit"
+                    className="btn-ai-primary"
+                    disabled={loading || !query.trim()}
+                >
+                    {loading ? (
+                        <>
+                            <span className="spinner-ai" role="status"></span>
+                            Thinking...
+                        </>
+                    ) : (
+                        <>
+                            <i className="fa-solid fa-paper-plane me-2"></i>
+                            Ask AI
+                        </>
+                    )}
+                </button>
+                {chatHistory.length > 0 && (
+                    <button
+                        type="button"
+                        className="btn-ai-secondary"
+                        onClick={clearChat}
+                        disabled={loading}
+                    >
+                        <i className="fa-solid fa-trash me-2"></i>
+                        Clear Chat
+                    </button>
                 )}
             </div>
-        </div>
+        </form>
+
+        {chatHistory.length === 0 && (
+            <div className="examples-section">
+                <p className="examples-title">
+                    <i className="fa-solid fa-lightbulb me-2"></i>
+                    Try these examples:
+                </p>
+                <div className="examples-grid">
+                    {exampleQueries.map((example, index) => (
+                        <button
+                            key={index}
+                            className="example-btn"
+                            onClick={() => setQuery(example)}
+                            disabled={loading}
+                            style={{ animationDelay: `${index * 0.1}s` }}
+                        >
+                            <i className="fa-solid fa-sparkles me-2"></i>
+                            {example}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        )}
+    </div>
+</div>
     );
 }

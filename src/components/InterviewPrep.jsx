@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { queryGemini } from '../services/gemini';
 import { speakText } from '../services/elevenLabs';
+import './InterviewPrep.css';
 
 export default function InterviewPrep() {
     const [isActive, setIsActive] = useState(false);
@@ -8,6 +9,24 @@ export default function InterviewPrep() {
     const [currentTranscript, setCurrentTranscript] = useState('');
     const [feedback, setFeedback] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    // Update time every second
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatDateTime = (date) => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
 
     const startInterview = async () => {
         setIsActive(true);
@@ -74,110 +93,73 @@ export default function InterviewPrep() {
     };
 
     return (
-        <div>
-            <div className="card shadow-sm mb-3">
-                <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h6 className="mb-0">Interview Practice</h6>
-                        <div className="d-flex gap-2">
-                            {!isActive && !feedback && (
-                                <>
-                                    <button
-                                        className="btn btn-sm btn-outline-secondary"
-                                        onClick={() => speakText("Hello, this is a voice test.")}
-                                        disabled={loading}
-                                    >
-                                        <i className="bi bi-volume-up"></i> Test Voice
-                                    </button>
-                                    <button
-                                        className="btn btn-success"
-                                        onClick={startInterview}
-                                        disabled={loading}
-                                    >
-                                        {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="bi bi-play-circle"></i>}
-                                        Start
-                                    </button>
-                                </>
-                            )}
-                            {isActive && (
-                                <button
-                                    className="btn btn-warning"
-                                    onClick={endInterview}
-                                    disabled={loading}
-                                >
-                                    {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="bi bi-stop-circle"></i>}
-                                    End & Get Feedback
-                                </button>
-                            )}
-                            {feedback && (
-                                <button className="btn btn-primary" onClick={() => { setFeedback(null); setConversation([]); }}>
-                                    <i className="bi bi-arrow-clockwise"></i> New Interview
-                                </button>
-                            )}
-                        </div>
-                    </div>
+        <>
+            {/* Control Panel Card */}
+<div className="interview-card control-card fade-in">
+    <div className="card-shine"></div>
+    <div className="interview-card-body">
+        <div className="control-header">
+            <div className="control-title-section">
+                <div className="control-title-icon">
+                    <i className="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div className="control-title-text">
+                    <h3 className="control-title">Interview Practice</h3>
+                    <p className="control-subtitle">Practice your interview skills with AI</p>
                 </div>
             </div>
-
-            {isActive && (
-                <div className="card shadow-sm mb-3">
-                    <div className="card-body">
-                        <label className="form-label">
-                            <i className="bi bi-keyboard"></i> Your Answer:
-                        </label>
-                        <textarea
-                            className="form-control mb-3"
-                            rows="3"
-                            value={currentTranscript}
-                            onChange={(e) => setCurrentTranscript(e.target.value)}
-                            placeholder="Type your answer here..."
-                            disabled={loading}
-                        />
+            <div className="control-buttons">
+                {!isActive && !feedback && (
+                    <>
                         <button
-                            className="btn btn-primary"
-                            onClick={handleSubmitAnswer}
-                            disabled={!currentTranscript.trim() || loading}
+                            className="btn-interview-test"
+                            onClick={() => speakText("Hello, this is a voice test.")}
+                            disabled={loading}
+                        >
+                            <i className="fa-solid fa-volume-high me-2"></i>
+                            Test Voice
+                        </button>
+                        <button
+                            className="btn-interview-start"
+                            onClick={startInterview}
+                            disabled={loading}
                         >
                             {loading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2"></span>
-                                    Thinking...
-                                </>
+                                <span className="spinner-interview me-2"></span>
                             ) : (
-                                <>
-                                    <i className="bi bi-send"></i> Submit Answer
-                                </>
+                                <i className="fa-solid fa-play me-2"></i>
                             )}
+                            Start Interview
                         </button>
-                    </div>
-                </div>
-            )}
-
-            {conversation.length > 0 && (
-                <div className="card shadow-sm mb-3">
-                    <div className="card-header bg-info text-white">
-                        <h6 className="mb-0">Conversation</h6>
-                    </div>
-                    <div className="card-body" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                        {conversation.map((msg, idx) => (
-                            <div key={idx} className={`mb-2 p-2 rounded ${msg.role === 'Interviewer' ? 'bg-light' : 'bg-primary bg-opacity-10'}`}>
-                                <strong>{msg.role}:</strong> {msg.content}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {feedback && (
-                <div className="card shadow-sm">
-                    <div className="card-header bg-success text-white">
-                        <h5 className="mb-0">Feedback</h5>
-                    </div>
-                    <div className="card-body">
-                        <pre style={{ whiteSpace: 'pre-wrap' }}>{feedback}</pre>
-                    </div>
-                </div>
-            )}
+                    </>
+                )}
+                {isActive && (
+                    <button
+                        className="btn-interview-end"
+                        onClick={endInterview}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <span className="spinner-interview me-2"></span>
+                        ) : (
+                            <i className="fa-solid fa-stop me-2"></i>
+                        )}
+                        End & Get Feedback
+                    </button>
+                )}
+                {feedback && (
+                    <button 
+                        className="btn-interview-new" 
+                        onClick={() => { setFeedback(null); setConversation([]); }}
+                    >
+                        <i className="fa-solid fa-rotate-right me-2"></i>
+                        New Interview
+                    </button>
+                )}
+            </div>
         </div>
+    </div>
+</div>
+        </>
     );
 }
