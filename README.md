@@ -50,7 +50,7 @@ Powered by **ElevenLabs API**, this voice-based feature allows you to:
 ## 🛠️ Built With
 
 - **Frontend**: React + Bootstrap
-- **Backend & Database**: Supabase (Authentication, Storage, Real-time Syncing)
+- **Backend & Database**: Supabase
 - **AI Integration**: Gemini API
 - **Voice Technology**: ElevenLabs API
 - **Languages**: JavaScript
@@ -104,7 +104,6 @@ AcadFinder/
 │   ├── components/       # React components
 │   ├── pages/           # Page components
 │   ├── services/        # API integrations (Gemini, ElevenLabs)
-│   ├── firebase/        # Supabase configuration
 │   └── App.jsx          # Main application component
 ├── public/              # Static assets
 └── package.json         # Dependencies
