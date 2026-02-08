@@ -5,7 +5,7 @@
 AcadFinder is a comprehensive platform designed to streamline the process of finding research opportunities and connecting with professors. Built during a hackathon, this full-stack application consolidates scattered resources into a single, intuitive interface.
 
 <p align="center">
-<img src="https://imgur.com/a/iMaSJ4n" alt="drawing" width="500"/>
+<img src="[Imgur](https://imgur.com/RwdOeXx)" alt="drawing" width="500"/>
 </p>
 
 ## 🌟 Inspiration
