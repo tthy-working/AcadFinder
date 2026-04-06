@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './sideBar.css';
 
 export default function SideBar() {
@@ -7,8 +7,19 @@ export default function SideBar() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  
+  useEffect(() => {
+    switch (location.pathname) {
+      case '/homeUi': setActiveIcon('home'); break;
+      case '/ai-assistant': setActiveIcon('ai'); break;
+      case '/interview': setActiveIcon('interview'); break;
+      case '/favorites': setActiveIcon('favorites'); break;
+      case '/email-templates': setActiveIcon('email-templates'); break;
+      default: setActiveIcon(''); break;
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -26,9 +37,7 @@ export default function SideBar() {
   };
 
   const handleIconClick = (iconName, path) => {
-    setActiveIcon(iconName);
     setIsSidebarOpen(false); 
-    console.log(`${iconName} clicked`);
     if (path) {
       navigate(path);
     }
